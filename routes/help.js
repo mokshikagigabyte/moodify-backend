@@ -2,12 +2,9 @@ const express = require('express');
 const nodemailer = require('nodemailer');
 const router = express.Router();
 
-router.post('/help-feedback', async (req, res) => {
+router.post('/feedback', async (req, res) => {
   const { message, email } = req.body;
-
-  if (!message) {
-    return res.status(400).json({ success: false, msg: 'Message is required' });
-  }
+  if (!message) return res.status(400).json({ success: false, msg: 'Message is required' });
 
   try {
     const transporter = nodemailer.createTransport({
@@ -23,15 +20,14 @@ router.post('/help-feedback', async (req, res) => {
     const mailOptions = {
       from: process.env.FROM_EMAIL,
       to: process.env.TO_EMAIL,
-      subject: 'New Moodify Help Request',
-      text: `User: ${email || 'Anonymous'}\n\nProblem:\n${message}`
+      subject: 'Moodify Help Request',
+      text: `User: ${email || 'Anonymous'}\n\nMessage:\n${message}`
     };
 
     await transporter.sendMail(mailOptions);
-    res.json({ success: true, msg: '🎉 Message sent! Thank you for your feedback.' });
+    res.json({ success: true, msg: 'Message sent successfully.' });
   } catch (err) {
-    console.error('Email send error:', err);
-    res.status(500).json({ success: false, msg: '❌ Server error. Please try again.' });
+    res.status(500).json({ success: false, msg: 'Email sending failed' });
   }
 });
 

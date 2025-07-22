@@ -8,7 +8,8 @@ async function getAccessToken() {
   const now = Date.now();
   if (accessToken && now < expiresAt) return accessToken;
 
-  const response = await axios.post('https://accounts.spotify.com/api/token',
+  const response = await axios.post(
+    'https://accounts.spotify.com/api/token',
     new URLSearchParams({ grant_type: 'client_credentials' }).toString(),
     {
       headers: {

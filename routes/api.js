@@ -1,16 +1,17 @@
 const express = require('express');
-const axios = require('axios');
-const { getAccessToken } = require('../spotify/token');
-const Mood = require('../models/Mood');
-
 const router = express.Router();
+const { getAccessToken } = require('../spotify');
+const Mood = require('../models/Mood');
+const axios = require('axios');
 
-// Get mood-based playlists
-router.get('/:emotion', async (req, res) => {
+// Mood-based playlist
+router.get('/mood/:emotion', async (req, res) => {
   const mood = req.params.emotion;
-  try {
-    await Mood.create({ mood });
 
+  // Save mood to MongoDB
+  await Mood.create({ mood });
+
+  try {
     const token = await getAccessToken();
     const response = await axios.get('https://api.spotify.com/v1/search', {
       headers: { Authorization: `Bearer ${token}` },
@@ -23,12 +24,13 @@ router.get('/:emotion', async (req, res) => {
 
     res.json(response.data.playlists.items);
   } catch (err) {
-    res.status(500).json({ error: 'Spotify playlist fetch failed' });
+    console.error(err);
+    res.status(500).json({ error: 'Spotify mood fetch failed' });
   }
 });
 
-// Manual search
-router.get('/search/manual', async (req, res) => {
+// Manual search (emoji or text)
+router.get('/search', async (req, res) => {
   const q = req.query.q;
   try {
     const token = await getAccessToken();
@@ -43,7 +45,8 @@ router.get('/search/manual', async (req, res) => {
 
     res.json(response.data);
   } catch (err) {
-    res.status(500).json({ error: 'Manual search failed' });
+    console.error(err);
+    res.status(500).json({ error: 'Search failed' });
   }
 });
 

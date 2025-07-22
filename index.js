@@ -6,31 +6,33 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middlewares
+// Middleware
 app.use(cors({
-  origin: ["http://localhost:3000", "https://your-frontend-domain"], // Replace with your frontend domain
+  origin: ["http://localhost:3000", "https://your-frontend-domain"], // Update to deployed frontend domain
   methods: ["GET", "POST"],
-  credentials: true // If using cookies/auth tokens
+  credentials: true
 }));
 app.use(express.json());
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('✅ MongoDB Connected'))
-  .catch((err) => console.error('❌ MongoDB connection error:', err));
+// Connect to MongoDB
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('✅ MongoDB Connected'))
+.catch(err => console.error('❌ MongoDB connection error:', err));
 
 // Routes
-const helpRoute = require('./routes/help');
-const authRoute = require('./routes/auth'); // Add auth routes
-app.use('/api', helpRoute);
-app.use('/api', authRoute); // Mount auth routes
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/help', require('./routes/help'));
+app.use('/api/mood', require('./routes/mood'));
 
-// Default Route
+// Root route
 app.get('/', (req, res) => {
   res.send('🎵 Moodify backend is live!');
 });
 
-// Start Server
+// Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
